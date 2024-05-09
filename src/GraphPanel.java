@@ -3,13 +3,15 @@ import java.awt.*;
 
 public class GraphPanel extends JPanel {
 
-    private final int WIDTH = 500;
-    private final int HEIGHT = 500;
+    private int[] X, Y;
 
-    int[] X, Y;
+    private int[] cameraPos = {100, 100};
 
-    int[] cameraPos = {0,0};
-    int[] scale = {0, 0};
+    // scale means [scale] pixels per 1 unit
+    private int scale = 1;
+
+    private int HEIGHT = 500;
+    private int WIDTH = 500;
     public GraphPanel(int[] X, int[] Y){
         this.X = X;
         this.Y = Y;
@@ -27,17 +29,41 @@ public class GraphPanel extends JPanel {
         setBackground(Color.WHITE);
     }
 
-    public GraphPanel(int[] X, int[] Y, int camX, int camY, int scaleX, int scaleY){
+    public GraphPanel(int[] X, int[] Y, int camX, int camY, int scale){
         this.X = X;
         this.Y = Y;
 
         cameraPos[0] = camX;
         cameraPos[1] = camY;
 
-        scale[0] = scaleX;
-        scale[1] = scaleY;
+        this.scale = scale;
 
         setBackground(Color.WHITE);
+    }
+
+    public int[] convertToViewPort(int[] realCoords) {
+        int viewportX = (WIDTH / 2 - (cameraPos[0] - realCoords[0])) * scale;
+        int viewportY = (HEIGHT / 2 + (cameraPos[1] - realCoords[1])) * scale;
+        return new int[] {viewportX, viewportY};
+    }
+
+    public int[] convertToReal(int[] viewportCoords) {
+        int realX = cameraPos[0] - ((WIDTH / 2 - viewportCoords[0]) / scale);
+        int realY = cameraPos[1] + ((HEIGHT / 2 - viewportCoords[1]) / scale);
+        return new int[] {realX, realY};
+    }
+
+    public void drawLineThroughPoint(Graphics g, int[] point, double m) {
+        int[] viewportCoords = convertToViewPort(point);
+
+    }
+
+    public void drawAxes(Graphics g){
+        //horizontal
+        g.drawLine(0,((HEIGHT /2) + cameraPos[1]), WIDTH,((HEIGHT /2) + cameraPos[1]));
+
+        // vertical
+        g.drawLine(((WIDTH /2) - cameraPos[0]),0,((WIDTH /2) - cameraPos[0]), HEIGHT);
     }
 
     @Override
@@ -49,10 +75,8 @@ public class GraphPanel extends JPanel {
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
 
-        //horizontal
-        g.drawLine(0,(cameraPos[1]+HEIGHT/2),WIDTH,(cameraPos[1]+HEIGHT/2));
+        drawAxes(g);
 
-        // vertical
-        g.drawLine((cameraPos[0]+WIDTH/2),0,(cameraPos[0]+WIDTH/2),HEIGHT);
+        drawLineThroughPoint(g, new int[]{0,0}, 2);
     }
 }
