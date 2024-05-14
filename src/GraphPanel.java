@@ -7,7 +7,7 @@ public class GraphPanel extends JPanel {
 
     private int[] X, Y;
 
-    private int[] cameraPos = {200, 400};
+    private int[] cameraPos = {100, 100};
 
     // scale means [scale] pixels per 1 unit
     private int scale = 1;
@@ -72,11 +72,6 @@ public class GraphPanel extends JPanel {
         Optional<int[]> bottom = intersectionHorizontal(convertToReal(new int[]{0,HEIGHT})[1], m, point[0], point[1]);
         int[] left = intersectionVertical(convertToReal(new int[]{0,0})[0], m, point[0], point[1]);
         int[] right = intersectionVertical(convertToReal(new int[]{WIDTH,0})[0], m, point[0], point[1]);
-
-        System.out.println(Arrays.toString(top.get()));
-        System.out.println(Arrays.toString(bottom.get()));
-        System.out.println(Arrays.toString(left));
-        System.out.println(Arrays.toString(right));
 
         boolean isTop = false;
         boolean isBottom = false;
@@ -166,6 +161,6 @@ public class GraphPanel extends JPanel {
 
         drawAxes(g);
 
-        drawLineThroughPoint(g, new int[]{0,0}, 2.0);
+        drawLineThroughPoint(g, new int[]{0,50}, 2.5);
     }
 }
