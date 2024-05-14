@@ -7,10 +7,10 @@ public class GraphPanel extends JPanel {
 
     private int[] X, Y;
 
-    private int[] cameraPos = {100, 100};
+    private int[] cameraPos = {5, 5};
 
     // scale means [scale] pixels per 1 unit
-    private int scale = 1;
+    private int scale = 10;
 
     private int HEIGHT = 500;
     private int WIDTH = 500;
@@ -44,14 +44,14 @@ public class GraphPanel extends JPanel {
     }
 
     public int[] convertToViewPort(int[] realCoords) {
-        int viewportX = (WIDTH / 2 - (cameraPos[0] - realCoords[0])) * scale;
-        int viewportY = (HEIGHT / 2 + (cameraPos[1] - realCoords[1])) * scale;
+        int viewportX = (realCoords[0] - cameraPos[0]) * scale + WIDTH / 2;
+        int viewportY = HEIGHT / 2 - (realCoords[1] - cameraPos[1]) * scale;
         return new int[] {viewportX, viewportY};
     }
 
     public int[] convertToReal(int[] viewportCoords) {
-        int realX = cameraPos[0] - ((WIDTH / 2 - viewportCoords[0]) / scale);
-        int realY = cameraPos[1] + ((HEIGHT / 2 - viewportCoords[1]) / scale);
+        int realX = (viewportCoords[0] - WIDTH / 2) / scale + cameraPos[0];
+        int realY = cameraPos[1] - (viewportCoords[1] - HEIGHT / 2) / scale;
         return new int[] {realX, realY};
     }
 
@@ -98,11 +98,6 @@ public class GraphPanel extends JPanel {
             isRight = true;
         }
 
-        System.out.println(isTop);
-        System.out.println(isBottom);
-        System.out.println(isLeft);
-        System.out.println(isRight);
-
         if(isTop && isRight) {
             g.drawLine(convertToViewPort(top.get())[0], convertToViewPort(top.get())[1],
                     convertToViewPort(right)[0], convertToViewPort(right)[1]);
@@ -139,15 +134,27 @@ public class GraphPanel extends JPanel {
             return;
         }
 
-        System.out.println("Apparently, none of the lines intersected where they were supposed to!");
+        System.out.println("The line "+"y="+m+"x+"+((-m*point[0])+point[1])+" does not intersect the screen");
+    }
+
+    public void drawVerticalLine(Graphics g, int x){
+        int[] viewportCoordsTop = convertToViewPort(new int[]{x, 0});
+        int[] viewportCoordsBottom = convertToViewPort(new int[]{x, HEIGHT});
+
+        if (viewportCoordsTop[0] >= 0 && viewportCoordsTop[0] <= WIDTH) {
+            System.out.println("Drawing vert line from ("+viewportCoordsTop[0]+","+0+") to ("+viewportCoordsBottom[0]+","+HEIGHT+")");
+            g.drawLine(viewportCoordsTop[0], 0, viewportCoordsBottom[0], HEIGHT);
+        } else {
+            System.out.println("The line "+"x="+x+" does not intersect the screen");
+        }
     }
 
     public void drawAxes(Graphics g){
         //horizontal
-        g.drawLine(0,((HEIGHT /2) + cameraPos[1]), WIDTH,((HEIGHT /2) + cameraPos[1]));
+        drawLineThroughPoint(g,new int[] {0,0},0);
 
         // vertical
-        g.drawLine(((WIDTH /2) - cameraPos[0]),0,((WIDTH /2) - cameraPos[0]), HEIGHT);
+        drawVerticalLine(g,0);
     }
 
     @Override
@@ -161,6 +168,6 @@ public class GraphPanel extends JPanel {
 
         drawAxes(g);
 
-        drawLineThroughPoint(g, new int[]{0,50}, 2.5);
+        drawLineThroughPoint(g, new int[]{0,5}, -2.5);
     }
 }
