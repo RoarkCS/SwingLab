@@ -1,19 +1,25 @@
 import javax.swing.*;
 import java.awt.*;
-import java.util.Arrays;
 import java.util.Optional;
 
 public class GraphPanel extends JPanel {
 
     private int[] X, Y;
 
-    private int[] cameraPos = {5, 5};
+    private int[] cameraPos = {22, 5};
 
     // scale means [scale] pixels per 1 unit
     private int scale = 10;
 
     private int HEIGHT = 500;
     private int WIDTH = 500;
+
+    // 1 tick per [tickFreq] units
+    private boolean drawTicks = true;
+    private int tickFreq = 10;
+    // ticklength by unit
+    private int tickLen = 10;
+
     public GraphPanel(int[] X, int[] Y){
         this.X = X;
         this.Y = Y;
@@ -55,6 +61,15 @@ public class GraphPanel extends JPanel {
         return new int[] {realX, realY};
     }
 
+    public boolean vertOnViewport(Optional<int[]> point){
+        return point.filter(ints -> convertToViewPort(ints)[0] >= 0 && convertToViewPort(ints)[0] <= WIDTH).isPresent();
+
+    }
+
+    public boolean horizOnViewport(int[] point){
+        return convertToViewPort(point)[1] >= 0 && convertToViewPort(point)[1] <= HEIGHT;
+    }
+
     public static Optional<int[]> intersectionHorizontal(int y, double m, int xi, int yi) {
         if (m == 0) {
             return Optional.empty();
@@ -66,6 +81,13 @@ public class GraphPanel extends JPanel {
         return new int[]{x, (int) Math.round(m * (x - xi) + yi)};
     }
 
+    public void drawLineViewPort(Graphics g, int[] point1, int[] point2){
+        point1 = convertToViewPort(point1);
+        point2 = convertToViewPort(point2);
+
+        g.drawLine(point1[0],point1[1],point2[0],point2[1]);
+    }
+
     public void drawLineThroughPoint(Graphics g, int[] point, double m){
 
         Optional<int[]> top = intersectionHorizontal(convertToReal(new int[]{0,0})[1], m, point[0], point[1]);
@@ -73,64 +95,38 @@ public class GraphPanel extends JPanel {
         int[] left = intersectionVertical(convertToReal(new int[]{0,0})[0], m, point[0], point[1]);
         int[] right = intersectionVertical(convertToReal(new int[]{WIDTH,0})[0], m, point[0], point[1]);
 
-        boolean isTop = false;
-        boolean isBottom = false;
-        boolean isLeft = false;
-        boolean isRight = false;
-
-        if(top.isPresent()){
-            if(convertToViewPort(top.get())[0] >= 0 && convertToViewPort(top.get())[0] <= WIDTH){
-                isTop = true;
-            }
-        }
-
-        if(bottom.isPresent()){
-            if(convertToViewPort(bottom.get())[0] >= 0 && convertToViewPort(bottom.get())[0] <= WIDTH){
-                isBottom = true;
-            }
-        }
-
-        if(convertToViewPort(left)[1] >= 0 && convertToViewPort(left)[1] <= HEIGHT){
-            isLeft = true;
-        }
-
-        if(convertToViewPort(right)[1] >= 0 && convertToViewPort(right)[1] <= HEIGHT){
-            isRight = true;
-        }
+        boolean isTop = vertOnViewport(top);
+        boolean isBottom = vertOnViewport(bottom);
+        boolean isLeft = horizOnViewport(left);
+        boolean isRight = horizOnViewport(right);
 
         if(isTop && isRight) {
-            g.drawLine(convertToViewPort(top.get())[0], convertToViewPort(top.get())[1],
-                    convertToViewPort(right)[0], convertToViewPort(right)[1]);
+            drawLineViewPort(g, top.get(), right);
             return;
         }
 
         if(isTop && isBottom) {
-            g.drawLine(convertToViewPort(top.get())[0], convertToViewPort(top.get())[1],
-                    convertToViewPort(bottom.get())[0], convertToViewPort(bottom.get())[1]);
+            drawLineViewPort(g, top.get(), bottom.get());
             return;
         }
 
         if(isTop && isLeft) {
-            g.drawLine(convertToViewPort(top.get())[0], convertToViewPort(top.get())[1],
-                    convertToViewPort(left)[0], convertToViewPort(left)[1]);
+            drawLineViewPort(g, top.get(),left);
             return;
         }
 
         if(isRight && isBottom) {
-            g.drawLine(convertToViewPort(right)[0], convertToViewPort(right)[1],
-                    convertToViewPort(bottom.get())[0], convertToViewPort(bottom.get())[1]);
+            drawLineViewPort(g, right, bottom.get());
             return;
         }
 
         if(isRight && isLeft) {
-            g.drawLine(convertToViewPort(right)[0], convertToViewPort(right)[1],
-                    convertToViewPort(left)[0], convertToViewPort(left)[1]);
+            drawLineViewPort(g, right, left);
             return;
         }
 
         if(isBottom && isLeft) {
-            g.drawLine(convertToViewPort(bottom.get())[0], convertToViewPort(bottom.get())[1],
-                    convertToViewPort(left)[0], convertToViewPort(left)[1]);
+            drawLineViewPort(g, bottom.get(), left);
             return;
         }
 
@@ -142,11 +138,27 @@ public class GraphPanel extends JPanel {
         int[] viewportCoordsBottom = convertToViewPort(new int[]{x, HEIGHT});
 
         if (viewportCoordsTop[0] >= 0 && viewportCoordsTop[0] <= WIDTH) {
-            System.out.println("Drawing vert line from ("+viewportCoordsTop[0]+","+0+") to ("+viewportCoordsBottom[0]+","+HEIGHT+")");
             g.drawLine(viewportCoordsTop[0], 0, viewportCoordsBottom[0], HEIGHT);
         } else {
             System.out.println("The line "+"x="+x+" does not intersect the screen");
         }
+    }
+
+    public void drawVertTick(Graphics g, int x, int y){
+
+        int[] p1 = convertToViewPort(new int[] {x,y});
+        int[] p2 = convertToViewPort(new int[] {x,y});
+
+        g.drawLine(p1[0],p1[1]+tickLen/2,p2[0],p2[1]-tickLen/2);
+    }
+
+    public void drawHorizTick(Graphics g, int x, int y){
+//        System.out.println("Drawing line from ("+x+","+(y+tickLen/2)+") to ("+x+","+(y-tickLen/2)+")");
+
+        int[] p1 = convertToViewPort(new int[] {x,y});
+        int[] p2 = convertToViewPort(new int[] {x,y});
+
+        g.drawLine(p1[0]+tickLen/2,p1[1],p2[0]-tickLen/2,p2[1]);
     }
 
     public void drawAxes(Graphics g){
@@ -168,6 +180,32 @@ public class GraphPanel extends JPanel {
 
         drawAxes(g);
 
-        drawLineThroughPoint(g, new int[]{0,5}, -2.5);
+        if(drawTicks){
+            //X-axis ticks
+            // if x axis on screen
+            if(convertToReal(new int[] {0,HEIGHT})[1] <= tickLen/2 && convertToReal(new int[] {0,0})[1] >= -tickLen/2){
+                int leftEdgeRealX = convertToReal(new int[] {0,0})[0];
+                int rightEdgeRealX = convertToReal(new int[] {WIDTH,0})[0];
+
+                for(int i = leftEdgeRealX + tickFreq - (leftEdgeRealX%tickFreq); i < rightEdgeRealX; i += tickFreq){
+                    drawVertTick(g, i, 0);
+                }
+            }
+
+            if(convertToReal(new int[] {0,0})[0] <= tickLen/2 && convertToReal(new int[] {WIDTH,0})[0] >= -tickLen/2){
+                int upEdgeRealY = convertToReal(new int[] {0,0})[1];
+                int downEdgeRealY = convertToReal(new int[] {0,HEIGHT})[1];
+
+                int j = upEdgeRealY + tickFreq - (upEdgeRealY%tickFreq);
+                System.out.println(j < downEdgeRealY);
+
+                for(int i = upEdgeRealY + tickFreq - (upEdgeRealY%tickFreq); i > downEdgeRealY; i -= tickFreq){
+                    drawHorizTick(g, 0, i);
+                }
+            }
+        }
+
+        drawLineThroughPoint(g,new int[] {0,2}, -2.5);
+
     }
 }
