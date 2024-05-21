@@ -1,4 +1,5 @@
 import javax.swing.*;
+import javax.swing.plaf.synth.SynthOptionPaneUI;
 import java.awt.*;
 import java.util.Optional;
 
@@ -6,7 +7,7 @@ public class GraphPanel extends JPanel {
 
     private int[] X, Y;
 
-    private int[] cameraPos = {22, 5};
+    private int[] cameraPos = {0, 0};
 
     // scale means [scale] pixels per 1 unit
     private int scale = 10;
@@ -49,15 +50,33 @@ public class GraphPanel extends JPanel {
         setBackground(Color.WHITE);
     }
 
+    public GraphPanel(int[] X, int[] Y, int quadrant){
+        this.X = X;
+        this.Y = Y;
+
+        switch (quadrant) {
+            case 1:
+                cameraPos = new int[] {10,10};
+            case 2:
+                cameraPos = new int[] {-10,10};
+            case 3:
+                cameraPos = new int[] {-10,-10};
+            case 4:
+                cameraPos = new int[] {10,-10};
+        }
+
+        setBackground(Color.WHITE);
+    }
+
     public int[] convertToViewPort(int[] realCoords) {
         int viewportX = (realCoords[0] - cameraPos[0]) * scale + WIDTH / 2;
-        int viewportY = HEIGHT / 2 - (realCoords[1] - cameraPos[1]) * scale;
+        int viewportY = (realCoords[1] - cameraPos[1]) * -scale + HEIGHT / 2;
         return new int[] {viewportX, viewportY};
     }
 
     public int[] convertToReal(int[] viewportCoords) {
         int realX = (viewportCoords[0] - WIDTH / 2) / scale + cameraPos[0];
-        int realY = cameraPos[1] - (viewportCoords[1] - HEIGHT / 2) / scale;
+        int realY = (viewportCoords[1] - (HEIGHT/2)) / -scale + cameraPos[1];
         return new int[] {realX, realY};
     }
 
@@ -161,6 +180,34 @@ public class GraphPanel extends JPanel {
         g.drawLine(p1[0]+tickLen/2,p1[1],p2[0]-tickLen/2,p2[1]);
     }
 
+    public void drawTicks(Graphics g){
+        //X-axis ticks
+        // if x axis on screen
+        if(convertToReal(new int[] {0,HEIGHT})[1] <= tickLen/2 && convertToReal(new int[] {0,0})[1] >= -tickLen/2){
+            System.out.println("x axis on screen");
+
+            int leftEdgeRealX = convertToReal(new int[] {0,0})[0];
+            int rightEdgeRealX = convertToReal(new int[] {WIDTH,0})[0];
+
+            for(int i = leftEdgeRealX + tickFreq - (leftEdgeRealX%tickFreq); i < rightEdgeRealX; i += tickFreq){
+                System.out.println("drawing a vert tick!");
+                drawVertTick(g, i, 0);
+            }
+        }
+
+        if(convertToReal(new int[] {0,0})[0] <= tickLen/2 && convertToReal(new int[] {WIDTH,0})[0] >= -tickLen/2){
+            System.out.println("Y axis on screen");
+
+            int upEdgeRealY = convertToReal(new int[] {0,0})[1];
+            int downEdgeRealY = convertToReal(new int[] {0,HEIGHT})[1];
+
+            for(int i = upEdgeRealY + tickFreq - (upEdgeRealY%tickFreq); i > downEdgeRealY; i -= tickFreq){
+                System.out.println("drawing a horiz tick!");
+                drawHorizTick(g, 0, i);
+            }
+        }
+    }
+
     public void drawAxes(Graphics g){
         //horizontal
         drawLineThroughPoint(g,new int[] {0,0},0);
@@ -181,31 +228,10 @@ public class GraphPanel extends JPanel {
         drawAxes(g);
 
         if(drawTicks){
-            //X-axis ticks
-            // if x axis on screen
-            if(convertToReal(new int[] {0,HEIGHT})[1] <= tickLen/2 && convertToReal(new int[] {0,0})[1] >= -tickLen/2){
-                int leftEdgeRealX = convertToReal(new int[] {0,0})[0];
-                int rightEdgeRealX = convertToReal(new int[] {WIDTH,0})[0];
-
-                for(int i = leftEdgeRealX + tickFreq - (leftEdgeRealX%tickFreq); i < rightEdgeRealX; i += tickFreq){
-                    drawVertTick(g, i, 0);
-                }
-            }
-
-            if(convertToReal(new int[] {0,0})[0] <= tickLen/2 && convertToReal(new int[] {WIDTH,0})[0] >= -tickLen/2){
-                int upEdgeRealY = convertToReal(new int[] {0,0})[1];
-                int downEdgeRealY = convertToReal(new int[] {0,HEIGHT})[1];
-
-                int j = upEdgeRealY + tickFreq - (upEdgeRealY%tickFreq);
-                System.out.println(j < downEdgeRealY);
-
-                for(int i = upEdgeRealY + tickFreq - (upEdgeRealY%tickFreq); i > downEdgeRealY; i -= tickFreq){
-                    drawHorizTick(g, 0, i);
-                }
-            }
+            drawTicks(g);
         }
 
-        drawLineThroughPoint(g,new int[] {0,2}, -2.5);
+        drawLineThroughPoint(g,new int[] {0,10}, -2.5);
 
     }
 }
