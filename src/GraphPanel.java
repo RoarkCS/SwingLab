@@ -77,6 +77,8 @@ public class GraphPanel extends JPanel {
         return new int[] {viewportX, viewportY};
     }
 
+
+
     public int[] convertToReal(int[] viewportCoords) {
         int realX = (viewportCoords[0] - WIDTH / 2) / scale + cameraPos[0];
         int realY = (viewportCoords[1] - HEIGHT / 2) / -scale + cameraPos[1];
@@ -205,6 +207,16 @@ public class GraphPanel extends JPanel {
         boolean isLeft = horizOnViewport(left);
         boolean isRight = horizOnViewport(right);
 
+        if (debugMode) {
+            System.out.println("Point: (" + point[0] + ", " + point[1] + "), Slope: " + m);
+            System.out.println("Top: " + top.map(Arrays::toString).orElse("empty") + ", isTop: " + isTop);
+            System.out.println("Bottom: " + bottom.map(Arrays::toString).orElse("empty") + ", isBottom: " + isBottom);
+            System.out.println("Left: " + Arrays.toString(left) + ", isLeft: " + isLeft);
+            System.out.println("Right: " + Arrays.toString(right) + ", isRight: " + isRight);
+
+            System.out.println();
+        }
+
         if(isTop && isRight) {
             drawLineViewPort(g, top.get(), right);
             return;
@@ -248,6 +260,8 @@ public class GraphPanel extends JPanel {
             g.drawLine(viewportCoordsTop[0], 0, viewportCoordsBottom[0], HEIGHT);
         } else {
             System.out.println("The line "+"x="+x+" does not intersect the screen");
+
+            System.out.println();
         }
     }
 
@@ -307,6 +321,8 @@ public class GraphPanel extends JPanel {
 
             if (debugMode) {
                 System.out.println("Called line thru point with The line with a slope of "+linesList.getSlope(i)+" that goes through point ("+linesList.getPoint(i)[0]+","+linesList.getPoint(i)[1]+")!");
+
+                System.out.println();
             }
         }
 

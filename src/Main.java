@@ -12,14 +12,21 @@ public class Main {
         p.setAutoCam(true);
         p.setAutoTick(true);
 
+        p.drawInfLine(1,1,0.1);
+        p.drawInfLine(1,1,0.3);
+        p.drawInfLine(1,1,0.5);
+        p.drawInfLine(1,1,0.7);
+        p.drawInfLine(1,1,0.9);
+        p.drawPoint(1,1);
+
         JPanel functions = new JPanel();
         functions.setLayout(new BoxLayout(functions, BoxLayout.Y_AXIS));
 
-
-
+        functions.add(new UserChip(functions));
 
         frame.add(p, BorderLayout.WEST);
-        frame.setSize(500, 500);
+        frame.add(functions, BorderLayout.EAST);
+        frame.setSize(800, 500);
         frame.pack();
         frame.setVisible(true);
     }
