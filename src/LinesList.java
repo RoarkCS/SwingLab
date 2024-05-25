@@ -4,26 +4,27 @@ public class LinesList {
 
     private final boolean debugMode = true;
 
-    private ArrayList<int[]> linePoints = new ArrayList<>();
+    private ArrayList<Point> linePoints = new ArrayList<>();
     private ArrayList<Double> lineSlopes = new ArrayList<>();
-    private ArrayList<int[]> verticalPoints = new ArrayList<>();
+    private ArrayList<Point> verticalPoints = new ArrayList<>();
 
     public void addLine(int x, int y, double m) {
-        int[] point = {x, y};
+        Point point = new Point(x,y);
         linePoints.add(point);
         lineSlopes.add(m);
 
         if (debugMode) {
-            System.out.println("The line with a slope of "+m+" that goes through point ("+point[0]+","+point[1]+") has been added to the linepoints and lineslopes!");
+            System.out.println("The line with a slope of "+m+" that goes through point ("+point.getX()+","+point.getY()+") has been added to the linepoints and lineslopes!");
+            System.out.println();
         }
     }
 
     public void addLine(int x, int y){
-        int[] point = {x, y};
+        Point point = new Point(x,y);
         verticalPoints.add(point);
     }
 
-    public int[] getPoint(int index){
+    public Point getPoint(int index){
         return linePoints.get(index);
     }
 
@@ -31,7 +32,7 @@ public class LinesList {
         return lineSlopes.get(index);
     }
 
-    public int[] getVert(int index){
+    public Point getVert(int index){
         return verticalPoints.get(index);
     }
 
