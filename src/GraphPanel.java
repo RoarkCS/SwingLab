@@ -188,6 +188,10 @@ public class GraphPanel extends JPanel {
     }
 
     private void drawLineThroughPoint(Graphics g, Point point, double m){
+        if(Math.abs(m-0.1) < 0.000001 || Math.abs(m-0.3) < 0.000001 || Math.abs(m-0.5) < 0.000001 || Math.abs(m-0.7) < 0.000001 || Math.abs(m-0.9) < 0.000001){
+            m += 0.00001;
+        }
+
         Optional<Point> top = intersectionHorizontal(upEdgeRealY, m, point.getX(), point.getY());
         Optional<Point> bottom = intersectionHorizontal(downEdgeRealY, m, point.getX(), point.getY());
         Point left = intersectionVertical(leftEdgeRealX, m, point.getX(), point.getY());
@@ -402,8 +406,6 @@ public class GraphPanel extends JPanel {
         drawAxes(g);
 
         if(drawTicks){drawTicks(g);}
-
-        g.drawLine(500,400,0,400);
 
         drawAllLines(g);
 

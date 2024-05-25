@@ -12,8 +12,8 @@ public class Main {
         p.setAutoCam(true);
         p.setAutoTick(true);
 
-        p.drawInfLine(1,1,0.1001);
-        p.drawInfLine(1,1,0.1);
+        p.drawInfLine(1,1,0.1001); //Graphs correctly
+        p.drawInfLine(1,1,0.1); // Graphs poorly
         p.drawPoint(1,1);
 
         frame.add(p);
