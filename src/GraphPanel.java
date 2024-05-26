@@ -5,20 +5,24 @@ import java.util.Optional;
 
 public class GraphPanel extends JPanel {
 
-    private final boolean debugMode = true;
+    private final boolean debugMode = false;
 
+    private Legend legend;
     private ArrayList<Point> data = new ArrayList<>();
     private Point cameraPos = new Point(0,0);
     private double scale = 10;
     private static final int HEIGHT = 500, WIDTH = 500;
     private boolean drawTicks = true;
-    private int tickFreq = 10, tickLen = 10;
+    private double tickFreq = 10;
+    private int tickLen = 10;
     private int pointRadius = 2;
     private boolean autoCam = false;
     private boolean autoTickFreq = false;
     private int autoCamPadding = 10;
     private double leftEdgeRealX, rightEdgeRealX, upEdgeRealY, downEdgeRealY;
     private LinesList linesList = new LinesList();
+
+    private boolean connectPoints = false;
 
     public GraphPanel(){
         autoCam = true;
@@ -112,18 +116,16 @@ public class GraphPanel extends JPanel {
     }
 
     private void autoTick() {
-        if(data.isEmpty()){
-            tickFreq = 10;
-        }
-
         double xRange = rightEdgeRealX - leftEdgeRealX;
         double yRange = upEdgeRealY - downEdgeRealY;
 
         int numTicksOnScreen = 10;
-        int xTickFreq = (int) Math.ceil( xRange / numTicksOnScreen);
-        int yTickFreq = (int) Math.ceil( yRange / numTicksOnScreen);
-        tickFreq = Math.max( Math.max( xTickFreq , yTickFreq ) , 1 );
+        double xTickSpacing = xRange / numTicksOnScreen;
+        double yTickSpacing = yRange / numTicksOnScreen;
+
+        tickFreq = Math.min(xTickSpacing, yTickSpacing);
     }
+
 
     private boolean onViewPort(Point point) {
         if (convertToViewPort(point).getX() >= 0 && convertToViewPort(point).getX() <= WIDTH){
@@ -263,7 +265,7 @@ public class GraphPanel extends JPanel {
     }
 
     private void drawTicks(Graphics g) {
-
+        // horizontal ticks
         if (downEdgeRealY <= tickLen / 2.0 && upEdgeRealY >= -tickLen / 2.0) {
             double startX = leftEdgeRealX - (leftEdgeRealX % tickFreq);
             if (startX < leftEdgeRealX) {
@@ -275,6 +277,7 @@ public class GraphPanel extends JPanel {
             }
         }
 
+        // vertical ticks
         if (leftEdgeRealX <= tickLen / 2.0 && rightEdgeRealX >= -tickLen / 2.0) {
             double startY = upEdgeRealY - (upEdgeRealY % tickFreq);
             if (startY > upEdgeRealY) {
@@ -337,15 +340,18 @@ public class GraphPanel extends JPanel {
         return scale;
     }
 
-    public void setScale(int s){
+    public void setScale(int s) {
+        autoCam = false;
         scale = s;
         repaint();
     }
 
-    public void setCameraPos(int x, int y){
-        cameraPos = new Point(x,y);
+    public void setCameraPos(int x, int y) {
+        autoCam = false;
+        cameraPos = new Point(x, y);
         repaint();
     }
+
 
     public Point getCameraPos(){
         return cameraPos;
@@ -356,12 +362,13 @@ public class GraphPanel extends JPanel {
         repaint();
     }
 
-    public void setTickFreq(int x){
+    public void setTickFreq(int x) {
+        autoTickFreq = false;
         tickFreq = x;
         repaint();
     }
 
-    public int getTickFreq(){
+    public double getTickFreq(){
         return tickFreq;
     }
 
@@ -390,6 +397,14 @@ public class GraphPanel extends JPanel {
         repaint();
     }
 
+    public void setConnectPoints(boolean connectPoints) {
+        this.connectPoints = connectPoints;
+    }
+
+    public void setLegend(Legend legend) {
+        this.legend = legend;
+    }
+
     @Override
     public Dimension getPreferredSize() {
         return new Dimension(500, 500);
@@ -399,17 +414,27 @@ public class GraphPanel extends JPanel {
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
 
-        if(autoCam){autoCam();}
-        if(autoTickFreq){autoTick();}
+        if(autoCam){
+            autoCam();
+            if(legend != null){
+                legend.update();
+            }
+        }
         updateEdges();
 
         drawAxes(g);
 
+        if(autoTickFreq){
+            autoTick();
+            if(legend != null){
+                legend.update();
+            }
+        }
         if(drawTicks){drawTicks(g);}
 
         drawAllLines(g);
 
         plotPoints(g);
-        connectPoints(g);
+        if(connectPoints){connectPoints(g);}
     }
 }

@@ -1,6 +1,5 @@
 import javax.swing.*;
 import java.awt.*;
-import java.util.Arrays;
 
 public class Main {
     public static void main(String[] args) {
@@ -9,15 +8,23 @@ public class Main {
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         GraphPanel p = new GraphPanel();
-        p.setAutoCam(true);
+
         p.setAutoTick(true);
+        p.setAutoCam(true);
 
-        p.drawInfLine(1,1,0.1001); //Graphs correctly
-        p.drawInfLine(1,1,0.1); // Graphs poorly
-        p.drawPoint(1,1);
+        p.drawPoint(5,1);
+        p.drawPoint(1,5);
 
-        frame.add(p);
-        frame.setSize(500, 500);
+        JPanel UI = new JPanel();
+        UI.setLayout(new GridLayout(4, 1));
+        Legend legend = new Legend(p);
+
+        UI.add(legend);
+        p.setLegend(legend);
+
+        frame.add(p, BorderLayout.WEST);
+        frame.add(UI, BorderLayout.EAST);
+        frame.setSize(800, 500);
         frame.pack();
         frame.setVisible(true);
     }

@@ -2,7 +2,7 @@ import java.util.ArrayList;
 
 public class LinesList {
 
-    private final boolean debugMode = true;
+    private final boolean debugMode = false;
 
     private ArrayList<Point> linePoints = new ArrayList<>();
     private ArrayList<Double> lineSlopes = new ArrayList<>();
