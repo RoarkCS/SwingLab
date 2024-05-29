@@ -316,23 +316,23 @@ public class GraphPanel extends JPanel {
 
     // PUBLIC FUNCTIONS
 
-    public void drawInfLine(int x, int y, double m){
+    public void drawInfLine(double x, double y, double m){
         linesList.addLine(x,y,m);
         repaint();
     }
 
-    public void drawInfLine(int x, int y){
+    public void drawInfLine(double x, double y){
         linesList.addLine(x,y);
         repaint();
     }
 
-    public void drawPoint(int x, int y){
+    public void addPoint(double x, double y){
         data.add(new Point(x,y));
         repaint();
     }
 
-    public void drawPoint(double x, double y){
-        data.add(new Point(x,y));
+    public void addPoint(Point point){
+        data.add(point);
         repaint();
     }
 
@@ -403,6 +403,10 @@ public class GraphPanel extends JPanel {
 
     public void setLegend(Legend legend) {
         this.legend = legend;
+    }
+
+    public ArrayList<Point> getData() {
+        return data;
     }
 
     @Override

@@ -8,7 +8,7 @@ public class LinesList {
     private ArrayList<Double> lineSlopes = new ArrayList<>();
     private ArrayList<Point> verticalPoints = new ArrayList<>();
 
-    public void addLine(int x, int y, double m) {
+    public void addLine(double x, double y, double m) {
         Point point = new Point(x,y);
         linePoints.add(point);
         lineSlopes.add(m);
@@ -19,7 +19,7 @@ public class LinesList {
         }
     }
 
-    public void addLine(int x, int y){
+    public void addLine(double x, double y){
         Point point = new Point(x,y);
         verticalPoints.add(point);
     }

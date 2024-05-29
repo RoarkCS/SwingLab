@@ -12,14 +12,13 @@ public class Main {
         p.setAutoTick(true);
         p.setAutoCam(true);
 
-        p.drawPoint(5,1);
-        p.drawPoint(1,5);
-
         JPanel UI = new JPanel();
-        UI.setLayout(new GridLayout(4, 1));
+        UI.setLayout(new BoxLayout(UI,BoxLayout.Y_AXIS));
         Legend legend = new Legend(p);
+        DataGenerator dataGenerator = new DataGenerator(p);
 
         UI.add(legend);
+        UI.add(dataGenerator);
         p.setLegend(legend);
 
         frame.add(p, BorderLayout.WEST);
