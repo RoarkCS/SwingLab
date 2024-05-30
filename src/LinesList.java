@@ -43,4 +43,10 @@ public class LinesList {
     public int getVertLinesLength(){
         return verticalPoints.size();
     }
+
+    public void clear() {
+        linePoints.clear();
+        lineSlopes.clear();
+        verticalPoints.clear();
+    }
 }

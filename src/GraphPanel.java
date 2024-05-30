@@ -397,6 +397,12 @@ public class GraphPanel extends JPanel {
         repaint();
     }
 
+    public void clear(){
+        data.clear();
+        linesList.clear();
+        repaint();
+    }
+
     public void setConnectPoints(boolean connectPoints) {
         this.connectPoints = connectPoints;
     }
