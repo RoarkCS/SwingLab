@@ -4,8 +4,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 public class DataGenerator extends JPanel {
-
-    private static final int MAX_DISPERSION = 75;
     private static final Font TITLE_FONT = new Font("Verdana", Font.BOLD, 12);
     private static final Font LABEL_FONT = new Font("Verdana", Font.PLAIN, 12);
     private static final Font BUTTON_FONT = new Font("Verdana", Font.PLAIN, 10);
@@ -216,7 +214,7 @@ public class DataGenerator extends JPanel {
             double x = Math.random() * (rangeHigh - rangeLow) + rangeLow;
             double y = m * x + b;
 
-            double randVector = ((Math.random() * 2) - 1) * (MAX_DISPERSION * percentDispersion * 0.01);
+            double randVector = ((Math.random() * 2) - 1) * (percentDispersion * 0.01) * (rangeHigh-rangeLow);
 
             y += randVector;
 
